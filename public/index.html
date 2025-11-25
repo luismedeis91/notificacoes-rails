@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Notificações</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 700px;
+            margin: 40px auto;
+        }
+
+        h2 {
+            margin-bottom: 10px;
+        }
+
+        input,
+        select,
+        textarea {
+            padding: 8px;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        button {
+            padding: 10px 15px;
+            background: black;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            opacity: .8;
+        }
+
+        #result {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f5f5f5;
+            border-radius: 5px;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h2>Enviar Notificação</h2>
+
+    <form id="notifyForm">
+        <label>User ID</label>
+        <input type="number" id="user_id" required>
+
+        <label>Tipo de Notificação</label>
+        <input type="text" id="notification_type" required>
+
+        <label>Email do Destinatário</label>
+        <input type="email" id="recipient_email">
+
+        <label>Título (payload.title)</label>
+        <input type="text" id="title">
+
+        <label>Mensagem (payload.message)</label>
+        <textarea id="message" rows="3"></textarea>
+
+        <label>Link (payload.link_url)</label>
+        <input type="text" id="link_url">
+
+        <button type="submit">Enviar</button>
+    </form>
+
+    <hr>
+
+    <h2>Listar Notificações</h2>
+    <button onclick="fetchNotifications()">Carregar Logs</button>
+
+    <div id="result"></div>
+
+    <script>
+        const API_BASE = "http://localhost:3000";
+
+        document.getElementById("notifyForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            const body = {
+                notification: {
+                    user_id: document.getElementById("user_id").value,
+                    notification_type: document.getElementById("notification_type").value,
+                    recipient_email: document.getElementById("recipient_email").value,
+                    payload: {
+                        title: document.getElementById("title").value,
+                        message: document.getElementById("message").value,
+                        link_url: document.getElementById("link_url").value
+                    }
+                }
+            };
+
+            const res = await fetch(`${API_BASE}/notifications`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(body)
+            });
+
+            const data = await res.json();
+            document.getElementById("result").innerText = JSON.stringify(data, null, 2);
+        });
+
+
+        async function fetchNotifications() {
+            const res = await fetch(`${API_BASE}/notifications`);
+            const data = await res.json();
+            document.getElementById("result").innerText = JSON.stringify(data, null, 2);
+        }
+    </script>
+
+</body>
+
+</html>
